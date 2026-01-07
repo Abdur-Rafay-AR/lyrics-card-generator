@@ -4,7 +4,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
-        <link rel="icon" type="image/x-icon" href="../public/favicon.ico">
+        <link rel="icon" type="image/x-icon" href="public/favicon.ico">
         <link rel="stylesheet" href="style.css">
        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
             integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -19,7 +19,7 @@
                 <div class="rect-default" id="rect" style="border-radius:20px; width: 500px; height: fit-content;">
                         <div class="content-rect">
                             <div class="songs-info">
-                                <p id="output2"><img src="https://via.placeholder.com/80"id="output"style="width:80px; 
+                                <p id="output2"><img src="Assets/spotify.png" id="output" style="width:80px; 
                                 height:80px; object-fit: cover;";/> </p>
                                 <div style="display: flex; flex-direction: column; margin-left: 20px">
                                   
@@ -42,6 +42,10 @@
                     
                 <!-- -------------------OPZIONI------------------ -->
                 <div class="parent">
+                    <div style="flex: 1 1 100%; justify-content: center;">
+                         <input type="text" id="spotify-url" placeholder="Paste Spotify Song Link" style="width: 60%; padding: 8px; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px;">
+                         <button id="fetch-spotify" class="btn btn-success">Fetch</button>
+                    </div>
                     <div class="div1">
                         <p style="height:fit-content"><input id="pick-file" type="file" accept="image/*" name="image" id="file"
                                 onchange="loadFile(event)""></p>                             
@@ -87,6 +91,57 @@
 
         <!-- -------------------SCRIPT------------------ -->
         <script>
+            document.getElementById('fetch-spotify').addEventListener('click', function() {
+                var url = document.getElementById('spotify-url').value;
+                if (!url) return alert("Please enter a Spotify URL");
+                
+                // Use AllOrigins as a proxy to avoid CORS with Spotify oEmbed
+                var oembedUrl = 'https://open.spotify.com/oembed?url=' + encodeURIComponent(url);
+                var proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(oembedUrl);
+
+                fetch(proxyUrl)
+                    .then(response => {
+                        if (response.ok) return response.json();
+                        throw new Error('Network response was not ok.');
+                    })
+                    .then(data => {
+                        var spotifyData = data; // corsproxy.io returns the raw data directly
+                        var title = spotifyData.title;
+                        var thumbnail = spotifyData.thumbnail_url;
+
+                        // Update Image
+                        var img = document.getElementById('output');
+                        img.crossOrigin = "Anonymous"; 
+                        img.src = thumbnail; 
+
+                        // Parse Title (Format usually: "Song Title - Artist")
+                        var songName = title;
+                        var artistName = "";
+                        
+                        // Try splitting by " - " first (common in Spotify oEmbed)
+                        var parts = title.split(" - ");
+                        if (parts.length > 1) {
+                            songName = parts[0];
+                            artistName = parts.slice(1).join(" - ");
+                        } else {
+                            // Try " by "
+                            parts = title.split(" by ");
+                            if (parts.length > 1) {
+                                songName = parts[0];
+                                artistName = parts.slice(1).join(" by ");
+                            }
+                        }
+
+                        document.getElementById('text-name').innerText = songName;
+                        document.getElementById('text-author').innerText = artistName || "Insert Author";
+                        
+                    })
+                    .catch(error => {
+                        console.error('Error fetching Spotify data:', error);
+                        alert("Failed to fetch data. Please check the link.");
+                    });
+            });
+
             document.getElementById("color-card").addEventListener("input", function () 
             {
                 document.getElementById("rect").style.backgroundColor = this.value;
@@ -149,7 +204,8 @@
               $("#download").on("click", function () {
                 html2canvas(document.querySelector("#rect"), { 
                     backgroundColor: null, 
-                    scale: 3 // Increase the scale for higher resolution
+                    scale: 3, // Increase the scale for higher resolution
+                    useCORS: true
                 }).then(canvas => {
                     canvas.toBlob(function (blob) {
                         var h1content = document.getElementById("text-name").innerHTML;
