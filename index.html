@@ -124,10 +124,19 @@
                             
                             var title = entity.name;
                             var artist = entity.artists.map(a => a.name).join(", ");
-                            var thumbnail = entity.visualIdentity.image[0].url;
+                            var thumbnail = entity.visualIdentity?.image?.[0]?.url;
+
+                            // Extract Color
+                            var hexColor = null;
+                            if (entity.visualIdentity && entity.visualIdentity.backgroundBase) {
+                                var r = entity.visualIdentity.backgroundBase.red;
+                                var g = entity.visualIdentity.backgroundBase.green;
+                                var b = entity.visualIdentity.backgroundBase.blue;
+                                hexColor = "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+                            }
 
                              // Update Card
-                            updateCard(title, artist, thumbnail);
+                            updateCard(title, artist, thumbnail, hexColor);
                         } else {
                             // Fallback to meta tags if script not found
                             console.log("Next.js data not found, trying meta tags");
@@ -147,7 +156,7 @@
                     });
             });
 
-            function updateCard(title, artist, thumbnail) {
+            function updateCard(title, artist, thumbnail, cardColor) {
                 // Fetch the image as blob and convert to Base64 to avoid CORS/file:// issues
                 if (thumbnail && thumbnail.startsWith("http")) {
                      fetch('https://corsproxy.io/?' + encodeURIComponent(thumbnail))
@@ -171,6 +180,13 @@
 
                 document.getElementById('text-name').innerText = title;
                 document.getElementById('text-author').innerText = artist || "Insert Author";
+
+                if (cardColor) {
+                    var colorInput = document.getElementById("color-card");
+                    colorInput.value = cardColor;
+                    // Dispatch input event to trigger the existing background color change listener
+                    colorInput.dispatchEvent(new Event('input'));
+                }
             }
 
             document.getElementById("color-card").addEventListener("input", function () 
