@@ -39,6 +39,10 @@
 
                            
                         </div>
+                        
+                        <div id="spotify-branding" style="display: none; position: absolute; bottom: 20px; left: 20px; opacity: 1;">
+                             <img src="Assets/spotify logo.png" style="height: 17px; width: auto;" alt="Spotify Logo">
+                        </div>
                     </div>
                     
                 <!-- -------------------OPZIONI------------------ -->
@@ -87,6 +91,13 @@
                         <h3 style="font-size: 20px;">Gradient: </h3>
                         <label class="switch">
                             <input type="checkbox" id="gradient-toggle">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="div5">
+                        <h3 style="font-size: 20px;">Spotify Logo: </h3>
+                        <label class="switch">
+                            <input type="checkbox" id="logo-toggle">
                             <span class="slider round"></span>
                         </label>
                     </div>
@@ -217,6 +228,10 @@
                 document.getElementById("text-lyric").style.color = this.value;
                 document.getElementById("text-author").style.color = this.value;
             }) 
+
+            document.getElementById("logo-toggle").addEventListener("change", function() {
+                document.getElementById("spotify-branding").style.display = this.checked ? "flex" : "none";
+            });
 
             document.getElementById("gradient-toggle").addEventListener("change", function () {
                 const gradientOptions = document.getElementById("gradient-options");
