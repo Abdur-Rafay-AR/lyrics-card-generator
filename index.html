@@ -88,6 +88,18 @@
                         <input id="color-text" type="color" value="#ffe2a4" />
                     </div>
                     <div class="div5">
+                        <h3 style="font-size: 20px;">Title Size: </h3>
+                        <input type="range" id="font-size-title" min="10" max="60" value="24" class="form-range">
+                    </div>
+                    <div class="div5">
+                        <h3 style="font-size: 20px;">Author Size: </h3>
+                        <input type="range" id="font-size-author" min="10" max="40" value="15" class="form-range">
+                    </div>
+                    <div class="div5">
+                        <h3 style="font-size: 20px;">Lyrics Size: </h3>
+                        <input type="range" id="font-size-lyrics" min="10" max="80" value="20" class="form-range">
+                    </div>
+                    <div class="div5">
                         <h3 style="font-size: 20px;">Card color: </h3>
                         <input id="color-card" type="color" value="#70c661" />
                     </div>
@@ -374,6 +386,19 @@
                 document.getElementById("rect").style.borderRadius = this.value +"px";
             });
 
+            // Font Size Logic
+            document.getElementById("font-size-title").addEventListener("input", function() {
+                document.getElementById("text-name").style.fontSize = this.value + "px";
+            });
+
+            document.getElementById("font-size-author").addEventListener("input", function() {
+                document.getElementById("text-author").style.fontSize = this.value + "px";
+            });
+            
+            document.getElementById("font-size-lyrics").addEventListener("input", function() {
+                document.getElementById("text-lyric").style.fontSize = this.value + "px";
+            });
+
             // Edit Mode Logic
             const editModeToggle = document.getElementById("edit-mode-toggle");
             let isEditMode = false;
@@ -462,6 +487,16 @@
 
                 // Album Art Image Size (Reset to 80x80)
                 $("#output").css({width: "80px", height: "80px"});
+
+                // Font Sizes (Reset inputs and styles)
+                document.getElementById("font-size-title").value = 24;
+                document.getElementById("text-name").style.fontSize = "24px";
+                
+                document.getElementById("font-size-author").value = 15;
+                document.getElementById("text-author").style.fontSize = "15px";
+
+                document.getElementById("font-size-lyrics").value = 20;
+                document.getElementById("text-lyric").style.fontSize = "20px";
 
                 // If in draggable mode, we might need to refresh? No, CSS update is enough.
                 // However, jQuery UI draggable stores position in data. 
