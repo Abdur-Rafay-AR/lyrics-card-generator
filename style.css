@@ -307,3 +307,38 @@ footer {
         margin-top: 6%;
     }
 }
+
+/* Dark Mode */
+body.dark-mode {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+body.dark-mode .container {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+}
+
+body.dark-mode h2.spotifytext {
+    color: #fff;
+}
+
+body.dark-mode .parent {
+     background-color: #252525;
+     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .parent h3 {
+    color: #fff;
+}
+
+body.dark-mode footer a {
+    color: #aaa !important;
+}
+
+body.dark-mode .div1 input[type="file"]::file-selector-button {
+    background-color: #333;
+    color: #eee;
+    border: 1px solid #555;
+    outline: none;
+}
