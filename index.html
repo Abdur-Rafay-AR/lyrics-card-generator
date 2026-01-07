@@ -2,6 +2,8 @@
 <html lang="en">
     <head>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
         <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
         <link rel="icon" type="image/x-icon" href="public/favicon.ico">
@@ -18,11 +20,13 @@
                 <!-- -------------------CANVAS------------------ -->
                 <div class="main-rows">
                 <div class="rect-default" id="rect" style="border-radius:20px; width: 500px;">
-                        <div class="content-rect">
-                            <div class="songs-info">
-                                <p id="output2"><img src="Assets/spotify.svg" id="output" style="width:80px; 
-                                height:80px; object-fit: cover;";/> </p>
-                                <div style="display: flex; flex-direction: column; margin-left: 20px">
+                        <div class="content-rect" style="padding: 0; margin: 0; width: 100%; height: 100%;">
+                            <div class="songs-info" style="position: relative;">
+                                <div id="album-art-container" style="display: inline-block;">
+                                    <p id="output2" style="margin: 0;"><img src="Assets/spotify.svg" id="output" style="width:80px; 
+                                    height:80px; object-fit: cover;";/> </p>
+                                </div>
+                                <div id="song-text-container" style="display: flex; flex-direction: column; margin-left: 20px; position: relative;">
                                   
                                         <h1 id="text-name" spellcheck="false" contenteditable="true" style="width: 350px; outline: 0px solid transparent;">Insert Name Song</h1>
                                         <h3 contenteditable="true" spellcheck="false" id="text-author" style="font-size: 15px; width: 360px; outline: 0px solid transparent;">Insert Author</h3>
@@ -31,7 +35,7 @@
                             </div>
 
                        
-                                <h2 id="text-lyric" spellcheck="false" style="width: 480px;margin-top: 20px;  margin-bottom: 20px; outline: 0px solid transparent; "contenteditable="true">
+                                <h2 id="text-lyric" spellcheck="false" style="width: 480px;margin-top: 20px;  margin-bottom: 20px; outline: 0px solid transparent; position: relative;" contenteditable="true">
                                     Click to edit<br>
                                     Press enter to insert new lines<br>
                                     Or just paste some text</h2>
@@ -93,6 +97,15 @@
                             <input type="checkbox" id="gradient-toggle">
                             <span class="slider round"></span>
                         </label>
+                    </div>
+                    <div class="div5">
+                        <h3 style="font-size: 20px;">Edit Mode: </h3>
+                        <label class="switch">
+                            <input type="checkbox" id="edit-mode-toggle">
+                            <span class="slider round"></span>
+                        </label>
+                        <p style="font-size: 12px; color: #666; margin-top: 5px;">(Drag & Resize Elements)</p>
+                        <button id="reset-layout" class="btn btn-danger btn-sm" style="margin-top: 5px; height: 50px;">Reset Layout</button>
                     </div>
                     <div class="div5">
                         <h3 style="font-size: 20px;">Spotify Logo: </h3>
@@ -286,6 +299,13 @@
 
         <script>
               $("#download").on("click", function () {
+                
+                // Temporarily disable edit mode visuals for capture
+                const wasEditMode = document.getElementById("edit-mode-toggle").checked;
+                if(wasEditMode) {
+                    toggleEditMode(false);
+                }
+
                 html2canvas(document.querySelector("#rect"), { 
                     backgroundColor: null, 
                     scale: 3 // Increase the scale for higher resolution
@@ -295,6 +315,12 @@
                         var newTitle = h1content.replace(/(<([^>]+)>)/ig, "");
                         newTitle += ".png";
                         window.saveAs(blob, newTitle);
+
+                        // Restore edit mode if it was on
+                        if(wasEditMode) {
+                            toggleEditMode(true);
+                            document.getElementById("edit-mode-toggle").checked = true;
+                        }
                     });
                 });
                 });   
@@ -347,6 +373,110 @@
             {
                 document.getElementById("rect").style.borderRadius = this.value +"px";
             });
+
+            // Edit Mode Logic
+            const editModeToggle = document.getElementById("edit-mode-toggle");
+            let isEditMode = false;
+
+            editModeToggle.addEventListener("change", function() {
+                isEditMode = this.checked;
+                toggleEditMode(isEditMode);
+            });
+
+            function toggleEditMode(enable) {
+                // Separate elements for individual dragging
+                const elementsToDrag = ["#album-art-container", "#song-text-container", "#text-lyric", "#spotify-branding"];
+                const elementsToResize = ["#text-lyric", "#output"];
+                
+                if (enable) {
+                    // Enable Draggable without containment (allows dragging outside)
+                    $(elementsToDrag.join(", ")).draggable({
+                        scroll: false,
+                        cursor: "move"
+                        // removed containment: "#rect"
+                    });
+
+                    // Enable Resizable
+                    $("#text-lyric").resizable({
+                        handles: "e, w" // Only width resizing for text to force wrap
+                        // removed containment
+                    });
+
+                    $("#output").resizable({
+                        aspectRatio: true,
+                        handles: "n, e, s, w, se" 
+                    });
+
+                    // Visual cues
+                    $(elementsToDrag.join(", ")).css("outline", "1px dashed rgba(0,0,0,0.3)");
+                    
+                    // Disable content editing while dragging
+                    document.getElementById("text-name").contentEditable = "false";
+                    document.getElementById("text-author").contentEditable = "false";
+                    document.getElementById("text-lyric").contentEditable = "false";
+
+                    // Set position absolute for freer movement if not already
+                    // Note: Switching to absolute might jump elements. 
+                    // jQuery UI draggable uses relative positioning by default if position is static, 
+                    // but for "full freedom", absolute relative to the card is often better.
+                    // However, users might just want to offset from current position. 
+                    // Let's stick to default jQuery behavior which adds relative positioning, but since we removed containment, it should go anywhere.
+
+                } else {
+                    // Disable Draggable
+                    try {
+                        $(elementsToDrag.join(", ")).draggable("destroy");
+                    } catch(e) {}
+
+                    // Disable Resizable
+                    try {
+                        $("#text-lyric").resizable("destroy");
+                        $("#output").resizable("destroy");
+                    } catch(e) {}
+
+                    // Remove visual cues
+                    $(elementsToDrag.join(", ")).css("outline", "none");
+                    
+                     // Re-enable content editing
+                    document.getElementById("text-name").contentEditable = "true";
+                    document.getElementById("text-author").contentEditable = "true";
+                    document.getElementById("text-lyric").contentEditable = "true";
+                }
+            }
+
+            // Reset Layout Logic
+            document.getElementById("reset-layout").addEventListener("click", function() {
+                // Reset positions and sizes
+                
+                // Album Art Container (remove movement)
+                $("#album-art-container").css({top: "", left: "", position: ""}); 
+                
+                // Artist/Title Container
+                $("#song-text-container").css({top: "", left: "", position: ""});
+
+                // Lyrics (Reset position and width)
+                $("#text-lyric").css({top: "", left: "", width: "480px", height: "", position: "relative"});
+
+                // Spotify Branding (Reset to bottom-left)
+                $("#spotify-branding").css({top: "", left: "20px", bottom: "20px", right: "", position: "absolute"});
+
+                // Album Art Image Size (Reset to 80x80)
+                $("#output").css({width: "80px", height: "80px"});
+
+                // If in draggable mode, we might need to refresh? No, CSS update is enough.
+                // However, jQuery UI draggable stores position in data. 
+                // Usually it updates on next drag.
+            });
+
+            // Hook into download to ensure edit mode is off (clears handles)
+            const originalDownloadBtn = document.getElementById("download");
+            // Clone and replace to hijack the listenener or just add a pre-listener? 
+            // Since jQuery is used for the click handler above on #download, we can add a mousedown listener to toggle off before click fires?
+            // Actually, the existing click handler is jQuery. Let's make sure we toggle OFF before that runs.
+            // But html2canvas runs async. 
+            // Best bet: Temporarily turn off edit mode inside the existing download handler.
+            // But I cannot easily edit the existing handler without replacing it. 
+            // I'll replace the download handler completely to be safe.
         </script>
         
     <footer class="footer" style="position: static; background-color: transparent !important;">
