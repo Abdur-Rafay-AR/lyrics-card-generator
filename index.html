@@ -94,53 +94,80 @@
             document.getElementById('fetch-spotify').addEventListener('click', function() {
                 var url = document.getElementById('spotify-url').value;
                 if (!url) return alert("Please enter a Spotify URL");
+
+                // Extract Track ID
+                var trackIdMatch = url.match(/track\/([a-zA-Z0-9]+)/);
+                if (!trackIdMatch) return alert("Invalid Spotify Track URL");
+                var trackId = trackIdMatch[1];
                 
-                // Use AllOrigins as a proxy to avoid CORS with Spotify oEmbed
-                var oembedUrl = 'https://open.spotify.com/oembed?url=' + encodeURIComponent(url);
-                var proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(oembedUrl);
+                // Fetch the Spotify Embed page via proxy
+                // This page is lighter and contains a JSON blob with all metadata including artist
+                var embedUrl = 'https://open.spotify.com/embed/track/' + trackId;
+                var proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(embedUrl);
 
                 fetch(proxyUrl)
                     .then(response => {
-                        if (response.ok) return response.json();
+                        if (response.ok) return response.text();
                         throw new Error('Network response was not ok.');
                     })
-                    .then(data => {
-                        var spotifyData = data; // corsproxy.io returns the raw data directly
-                        var title = spotifyData.title;
-                        var thumbnail = spotifyData.thumbnail_url;
-
-                        // Update Image
-                        var img = document.getElementById('output');
-                        img.crossOrigin = "Anonymous"; 
-                        img.src = thumbnail; 
-
-                        // Parse Title (Format usually: "Song Title - Artist")
-                        var songName = title;
-                        var artistName = "";
+                    .then(html => {
+                        var parser = new DOMParser();
+                        var doc = parser.parseFromString(html, "text/html");
                         
-                        // Try splitting by " - " first (common in Spotify oEmbed)
-                        var parts = title.split(" - ");
-                        if (parts.length > 1) {
-                            songName = parts[0];
-                            artistName = parts.slice(1).join(" - ");
+                        // New method: Extract data from Next.js hydration script
+                        var nextDataScript = doc.getElementById("__NEXT_DATA__");
+                        if (nextDataScript) {
+                            var json = JSON.parse(nextDataScript.innerText);
+                            var entity = json.props.pageProps.state.data.entity;
+                            
+                            var title = entity.name;
+                            var artist = entity.artists.map(a => a.name).join(", ");
+                            var thumbnail = entity.visualIdentity.image[0].url;
+
+                             // Update Card
+                            updateCard(title, artist, thumbnail);
                         } else {
-                            // Try " by "
-                            parts = title.split(" by ");
-                            if (parts.length > 1) {
-                                songName = parts[0];
-                                artistName = parts.slice(1).join(" by ");
-                            }
-                        }
+                            // Fallback to meta tags if script not found
+                            console.log("Next.js data not found, trying meta tags");
+                            var title = doc.querySelector('.TitleAndSubtitle_title__Nwyku a')?.innerText || "Unknown Song";
+                            var artist = doc.querySelector('.TitleAndSubtitle_subtitle__P1cxq a')?.innerText || "Unknown Artist";
+                            var thumbnail = doc.querySelector('.CoverArtBase_coverArt__ne0XI')?.style.backgroundImage?.slice(5, -2);
+                            
+                            // Clean up thumbnail url if coming from background-image
+                            if(!thumbnail) thumbnail = "Assets/spotify.png";
 
-                        document.getElementById('text-name').innerText = songName;
-                        document.getElementById('text-author').innerText = artistName || "Insert Author";
-                        
+                             updateCard(title, artist, thumbnail);
+                        }
                     })
                     .catch(error => {
                         console.error('Error fetching Spotify data:', error);
-                        alert("Failed to fetch data. Please check the link.");
+                        alert("Failed to fetch data. Please check the link or try again.");
                     });
             });
+
+            function updateCard(title, artist, thumbnail) {
+                // Fetch the image as blob and convert to Base64 to avoid CORS/file:// issues
+                if (thumbnail && thumbnail.startsWith("http")) {
+                     fetch('https://corsproxy.io/?' + encodeURIComponent(thumbnail))
+                        .then(res => res.blob())
+                        .then(blob => {
+                            var reader = new FileReader();
+                            reader.onloadend = function() {
+                                var img = document.getElementById('output');
+                                img.removeAttribute("crossOrigin"); 
+                                img.src = reader.result;
+                            }
+                            reader.readAsDataURL(blob);
+                        })
+                        .catch(err => {
+                            console.error("Error loading image proxy:", err);
+                             document.getElementById('output').src = thumbnail; // Fallback
+                        });
+                }
+
+                document.getElementById('text-name').innerText = title;
+                document.getElementById('text-author').innerText = artist || "Insert Author";
+            }
 
             document.getElementById("color-card").addEventListener("input", function () 
             {
@@ -204,8 +231,7 @@
               $("#download").on("click", function () {
                 html2canvas(document.querySelector("#rect"), { 
                     backgroundColor: null, 
-                    scale: 3, // Increase the scale for higher resolution
-                    useCORS: true
+                    scale: 3 // Increase the scale for higher resolution
                 }).then(canvas => {
                     canvas.toBlob(function (blob) {
                         var h1content = document.getElementById("text-name").innerHTML;
