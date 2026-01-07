@@ -17,7 +17,7 @@
     
                 <!-- -------------------CANVAS------------------ -->
                 <div class="main-rows">
-                <div class="rect-default" id="rect" style="border-radius:20px; width: 500px; height: fit-content;">
+                <div class="rect-default" id="rect" style="border-radius:20px; width: 500px;">
                         <div class="content-rect">
                             <div class="songs-info">
                                 <p id="output2"><img src="Assets/spotify.svg" id="output" style="width:80px; 
@@ -52,6 +52,23 @@
                         <img id="image-preview" src="Assets/spotify.svg" style="width:80px; height:80px; margin-left:10px; object-fit: cover;" alt="Image Preview">                             
                                     </div>      
                 
+                    <div style="flex: 1 1 100%; margin-left: 40px; margin-right: 40px; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; margin-bottom: 20px;">
+                         <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 10px;">Card Size: </h3>
+                         <select id="card-size" class="form-control" style="width: 100%;">
+                            <option value="auto">Auto (Fit Content)</option>
+                            <option value="square">Square (1:1)</option>
+                            <option value="portrait">Portrait (Story 9:16)</option>
+                            <option value="landscape">Landscape (16:9)</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                        <div id="custom-size-options" style="display: none; margin-top: 10px; gap: 10px; align-items: center;">
+                            <input type="number" id="custom-width" placeholder="W" value="500" class="form-control" style="width: 80px; display: inline-block;"> 
+                            <span>x</span>
+                            <input type="number" id="custom-height" placeholder="H" value="500" class="form-control" style="width: 80px; display: inline-block;"> 
+                            <span>px</span>
+                        </div>
+                    </div>
+
                                     <div class=" div2">
                         <h3 style="font-size: 20px;">Border radius: </h3>
                         <input type="range" class="form-range" value="20" min="0" max="20" step="1" id="border">
@@ -270,15 +287,51 @@
 
 
         <script>
-           
-                document.getElementById("border").addEventListener("input", function () 
-                {
-                    document.getElementById("rect").style.borderRadius = this.value +"px"
-                    console.log(this.value)
-                    console.log(document.getElementById("rect").style.borderRadius)
-                    document.getElementById("canvas").style.borderRadius = this.value + "px"
-                })                            
-            
+            // Card Size Logic
+            const cardSizeSelect = document.getElementById("card-size");
+            const customOptions = document.getElementById("custom-size-options");
+            const rect = document.getElementById("rect");
+            const customWidth = document.getElementById("custom-width");
+            const customHeight = document.getElementById("custom-height");
+
+            function updateCardSize() {
+                const size = cardSizeSelect.value;
+                
+                // Reset styles
+                rect.style.minHeight = "unset";
+
+                if (size === "custom") {
+                    customOptions.style.display = "flex";
+                    rect.style.width = customWidth.value + "px";
+                    rect.style.height = customHeight.value + "px";
+                } else {
+                    customOptions.style.display = "none";
+                    
+                    if (size === "auto") {
+                        rect.style.width = "500px";
+                        rect.style.height = "fit-content";
+                    } else if (size === "square") {
+                        rect.style.width = "500px";
+                        rect.style.height = "500px";
+                    } else if (size === "portrait") {
+                        rect.style.width = "400px"; 
+                        rect.style.height = "711px"; // ~9:16 ratio
+                    } else if (size === "landscape") {
+                        rect.style.width = "600px";
+                        rect.style.height = "338px"; // ~16:9 ratio
+                    }
+                }
+            }
+
+            cardSizeSelect.addEventListener("change", updateCardSize);
+            customWidth.addEventListener("input", updateCardSize);
+            customHeight.addEventListener("input", updateCardSize);
+
+            // Border Radius Logic
+            document.getElementById("border").addEventListener("input", function () 
+            {
+                document.getElementById("rect").style.borderRadius = this.value +"px";
+            });
         </script>
         
     <footer class="footer" style="position: static; background-color: transparent !important;">

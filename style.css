@@ -95,6 +95,16 @@ h2.spotifytext {
     margin: 40px auto;
     box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
     transition: background 0.27s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* Ensure content adapts */
+.content-rect {
+    width: 100%;
 }
 
 .songs-info {
