@@ -35,4 +35,5 @@ This version includes several enhancements over the original project:
 ### 🖼️ Enhanced Export
 - Fixed cross-origin (CORS) issues when saving images, ensuring the fetched Spotify album art is correctly included in the downloaded PNG.
 
-![LyricsCardPage](https://github.com/user-attachments/assets/c232baa5-ed8d-4fe3-869a-4c4366a02f02)
+![LyricsCardPage](https://github.com/user-attachments/assets/ae70ea1b-1ad7-4c80-88dd-e2e15cb5b003)
+
