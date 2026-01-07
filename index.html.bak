@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
+        <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
+        <link rel="icon" type="image/x-icon" href="public/favicon.ico">
+        <link rel="stylesheet" href="style.css">
+       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+            integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    </head>
+    <body>
+        <div class="container" style="position: relative;">
+            <button id="theme-toggle" style="position: absolute; top: 30px; right: 30px; padding: 5px 10px; cursor: pointer; border-radius: 5px; border: 1px solid #ccc; background: #fff; z-index: 100;">🌙</button>
+            <h2 style="font-size: 60px;" class="spotifytext">Lyrics Card Maker</h2>
+    
+                <!-- -------------------CANVAS------------------ -->
+                <div class="main-rows">
+                <div class="rect-default" id="rect" style="border-radius:20px; width: 500px;">
+                        <div class="content-rect" style="padding: 0; margin: 0; width: 100%; height: 100%;">
+                            <div class="songs-info" style="position: relative;">
+                                <div id="album-art-container" style="display: inline-block;">
+                                    <p id="output2" style="margin: 0;"><img src="Assets/spotify.svg" id="output" style="width:80px; 
+                                    height:80px; object-fit: cover;";/> </p>
+                                </div>
+                                <div id="song-text-container" style="display: flex; flex-direction: column; margin-left: 20px; position: relative;">
+                                  
+                                        <h1 id="text-name" spellcheck="false" contenteditable="true" style="width: 350px; outline: 0px solid transparent;">Insert Name Song</h1>
+                                        <h3 contenteditable="true" spellcheck="false" id="text-author" style="font-size: 15px; width: 360px; outline: 0px solid transparent;">Insert Author</h3>
+                                    
+                                </div>              
+                            </div>
+
+                       
+                                <h2 id="text-lyric" spellcheck="false" style="width: 480px;margin-top: 20px;  margin-bottom: 20px; outline: 0px solid transparent; position: relative;" contenteditable="true">
+                                    Click to edit<br>
+                                    Press enter to insert new lines<br>
+                                    Or just paste some text</h2>
+                   
+
+                           
+                        </div>
+                        
+                        <div id="spotify-branding" style="display: none; position: absolute; bottom: 20px; left: 20px; opacity: 1;">
+                             <img src="Assets/spotify logo.png" style="height: 17px; width: auto;" alt="Spotify Logo">
+                        </div>
+                    </div>
+                    
+                <!-- -------------------OPZIONI------------------ -->
+                <div class="parent">
+                    <div style="flex: 1 1 100%; justify-content: flex-start;">
+                         <input type="text" id="spotify-url" placeholder="Paste Spotify Song Link" style="width: 60%; padding: 8px; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px;">
+                         <button id="fetch-spotify" class="btn btn-success" style="margin-bottom: 10px;">Fetch</button>
+                    </div>
+                    <div class="div1">
+                        <p style="height:fit-content"><input id="pick-file" type="file" accept="image/*" name="image" onchange="loadFile(event)" placeholder="Choose an image"></p>
+                        <img id="image-preview" src="Assets/spotify.svg" style="width:80px; height:80px; margin-left:10px; object-fit: cover;" alt="Image Preview">                             
+                                    </div>      
+                
+                    <div style="flex: 1 1 100%; margin-left: 40px; margin-right: 40px; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; margin-bottom: 20px;">
+                         <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 10px;">Card Size: </h3>
+                         <select id="card-size" class="form-control" style="width: 100%;">
+                            <option value="auto">Auto (Fit Content)</option>
+                            <option value="square">Square (1:1)</option>
+                            <option value="portrait">Portrait (Story 9:16)</option>
+                            <option value="landscape">Landscape (16:9)</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                        <div id="custom-size-options" style="display: none; margin-top: 10px; gap: 10px; align-items: center;">
+                            <input type="number" id="custom-width" placeholder="W" value="500" class="form-control" style="width: 80px; display: inline-block;"> 
+                            <span>x</span>
+                            <input type="number" id="custom-height" placeholder="H" value="500" class="form-control" style="width: 80px; display: inline-block;"> 
+                            <span>px</span>
+                        </div>
+                    </div>
+
+                                    <div class=" div2">
+                        <h3 style="font-size: 20px;">Border radius: </h3>
+                        <input type="range" class="form-range" value="20" min="0" max="20" step="1" id="border">
+                    </div>
+                
+                
+                    <div class="div3">
+                        <h3 style="font-size: 20px;">Text color: </h3>
+                        <input id="color-text" type="color" value="#ffe2a4" />
+                    </div>
+                    <div class="div5">
+                        <h3 style="font-size: 20px;">Title Size: </h3>
+                        <input type="range" id="font-size-title" min="10" max="60" value="24" class="form-range">
+                    </div>
+                    <div class="div5">
+                        <h3 style="font-size: 20px;">Author Size: </h3>
+                        <input type="range" id="font-size-author" min="10" max="40" value="15" class="form-range">
+                    </div>
+                    <div class="div5">
+                        <h3 style="font-size: 20px;">Lyrics Size: </h3>
+                        <input type="range" id="font-size-lyrics" min="10" max="80" value="20" class="form-range">
+                    </div>
+                    <div class="div5">
+                        <h3 style="font-size: 20px;">Card color: </h3>
+                        <input id="color-card" type="color" value="#70c661" />
+                    </div>
+                    <div class="div5">
+                        <h3 style="font-size: 20px;">Gradient: </h3>
+                        <label class="switch">
+                            <input type="checkbox" id="gradient-toggle">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="div5">
+                        <h3 style="font-size: 20px;">Edit Mode: </h3>
+                        <label class="switch">
+                            <input type="checkbox" id="edit-mode-toggle">
+                            <span class="slider round"></span>
+                        </label>
+                        <p style="font-size: 12px; color: #666; margin-top: 5px;">(Drag & Resize Elements)</p>
+                        <button id="reset-layout" class="btn btn-danger btn-sm" style="margin-top: 5px; height: 50px;">Reset Layout</button>
+                    </div>
+                    <div class="div5">
+                        <h3 style="font-size: 20px;">Spotify Logo: </h3>
+                        <label class="switch">
+                            <input type="checkbox" id="logo-toggle">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="gradientcolor" id="gradient-options" style="display: none;">
+                        <input type="color" id="gradient-color1" value="#ffe2a4" />
+                        <input type="color" id="gradient-color2" value="#FFFFFF" />
+                        <input type="range" id="gradient-angle" placeholder="Angle (e.g., 45)" value="10" min="0" max="360" step="1"/>
+
+
+        
+                    </div>
+                    <div>
+                        <button type="button" id="download" class="btn btn-info">Save as Image</button>
+                    </div>
+                </div>
+        </div>
+        </div>  
+
+
+
+
+        <!-- -------------------SCRIPT------------------ -->
+        <script>
+            document.getElementById('fetch-spotify').addEventListener('click', function() {
+                var url = document.getElementById('spotify-url').value;
+                if (!url) return alert("Please enter a Spotify URL");
+
+                // Extract Track ID
+                var trackIdMatch = url.match(/track\/([a-zA-Z0-9]+)/);
+                if (!trackIdMatch) return alert("Invalid Spotify Track URL");
+                var trackId = trackIdMatch[1];
+                
+                // Fetch the Spotify Embed page via proxy
+                // This page is lighter and contains a JSON blob with all metadata including artist
+                var embedUrl = 'https://open.spotify.com/embed/track/' + trackId;
+                var proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(embedUrl);
+
+                fetch(proxyUrl)
+                    .then(response => {
+                        if (response.ok) return response.text();
+                        throw new Error('Network response was not ok.');
+                    })
+                    .then(html => {
+                        var parser = new DOMParser();
+                        var doc = parser.parseFromString(html, "text/html");
+                        
+                        // New method: Extract data from Next.js hydration script
+                        var nextDataScript = doc.getElementById("__NEXT_DATA__");
+                        if (nextDataScript) {
+                            var json = JSON.parse(nextDataScript.innerText);
+                            var entity = json.props.pageProps.state.data.entity;
+                            
+                            var title = entity.name;
+                            var artist = entity.artists.map(a => a.name).join(", ");
+                            var thumbnail = entity.visualIdentity?.image?.[0]?.url;
+
+                            // Extract Color
+                            var hexColor = null;
+                            if (entity.visualIdentity && entity.visualIdentity.backgroundBase) {
+                                var r = entity.visualIdentity.backgroundBase.red;
+                                var g = entity.visualIdentity.backgroundBase.green;
+                                var b = entity.visualIdentity.backgroundBase.blue;
+                                hexColor = "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+                            }
+
+                             // Update Card
+                            updateCard(title, artist, thumbnail, hexColor);
+                        } else {
+                            // Fallback to meta tags if script not found
+                            console.log("Next.js data not found, trying meta tags");
+                            var title = doc.querySelector('.TitleAndSubtitle_title__Nwyku a')?.innerText || "Unknown Song";
+                            var artist = doc.querySelector('.TitleAndSubtitle_subtitle__P1cxq a')?.innerText || "Unknown Artist";
+                            var thumbnail = doc.querySelector('.CoverArtBase_coverArt__ne0XI')?.style.backgroundImage?.slice(5, -2);
+                            
+                            // Clean up thumbnail url if coming from background-image
+                            if(!thumbnail) thumbnail = "Assets/spotify.svg";
+
+                             updateCard(title, artist, thumbnail);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching Spotify data:', error);
+                        alert("Failed to fetch data. Please check the link or try again.");
+                    });
+            });
+
+            function updateCard(title, artist, thumbnail, cardColor) {
+                // Fetch the image as blob and convert to Base64 to avoid CORS/file:// issues
+                if (thumbnail && thumbnail.startsWith("http")) {
+                     fetch('https://corsproxy.io/?' + encodeURIComponent(thumbnail))
+                        .then(res => res.blob())
+                        .then(blob => {
+                            var reader = new FileReader();
+                            reader.onloadend = function() {
+                                var img = document.getElementById('output');
+                                img.removeAttribute("crossOrigin"); 
+                                img.src = reader.result;
+                                document.getElementById('image-preview').src = reader.result; // Update preview
+                            }
+                            reader.readAsDataURL(blob);
+                        })
+                        .catch(err => {
+                            console.error("Error loading image proxy:", err);
+                             document.getElementById('output').src = thumbnail; // Fallback
+                             document.getElementById('image-preview').src = thumbnail; // Update preview
+                        });
+                }
+
+                document.getElementById('text-name').innerText = title;
+                document.getElementById('text-author').innerText = artist || "Insert Author";
+
+                if (cardColor) {
+                    var colorInput = document.getElementById("color-card");
+                    colorInput.value = cardColor;
+                    // Dispatch input event to trigger the existing background color change listener
+                    colorInput.dispatchEvent(new Event('input'));
+                }
+            }
+
+            document.getElementById("color-card").addEventListener("input", function () 
+            {
+                document.getElementById("rect").style.backgroundColor = this.value;
+            })   
+
+            document.getElementById("color-text").addEventListener("input", function () 
+            {          
+                document.getElementById("text-name").style.color = this.value;
+                document.getElementById("text-lyric").style.color = this.value;
+                document.getElementById("text-author").style.color = this.value;
+            }) 
+
+            document.getElementById("logo-toggle").addEventListener("change", function() {
+                document.getElementById("spotify-branding").style.display = this.checked ? "flex" : "none";
+            });
+
+            document.getElementById("gradient-toggle").addEventListener("change", function () {
+                const gradientOptions = document.getElementById("gradient-options");
+                if (this.checked) {
+                    gradientOptions.style.display = "block";
+                    gradientOptions.offsetHeight;
+                    applyGradient();
+                } else {
+                    gradientOptions.style.display = "none";
+                    document.getElementById("rect").style.background = document.getElementById("color-card").value;
+                }
+            });
+            
+            function applyGradient() {
+                const color1 = document.getElementById("gradient-color1").value;
+                const color2 = document.getElementById("gradient-color2").value;
+                const angle = document.getElementById("gradient-angle").value || 45;
+                document.getElementById("rect").style.background = `linear-gradient(${angle}deg, ${color1}, ${color2})`;
+            }
+            
+            document.getElementById("gradient-color1").addEventListener("input", applyGradient);
+            document.getElementById("gradient-color2").addEventListener("input", applyGradient);
+            document.getElementById("gradient-angle").addEventListener("input", applyGradient);
+
+            function handle_paste(id) //we create the function to apply it to every text box
+            {
+                document.getElementById(id).addEventListener("paste", function(e){ //listen when we paste text
+                    e.preventDefault(); //we prevent the style from also pasting
+                    var text_to_paste = e.clipboardData.getData("text/plain"); //we get the plain text from the clipboard
+                    document.execCommand("insertText", false, text_to_paste); //we insert the new, cleaned text
+                });
+            }
+
+            handle_paste("text-name"); //we apply it to every single box
+            handle_paste("text-lyric");
+            handle_paste("text-author");
+
+            // Set initial card background color
+            document.getElementById("rect").style.backgroundColor = document.getElementById("color-card").value;
+        </script>
+
+        <script>
+            var loadFile = function (event) {
+                var image = document.getElementById('output');
+                image.src = URL.createObjectURL(event.target.files[0]);
+                image.hidden = false;
+                var preview = document.getElementById('image-preview');
+                preview.src = URL.createObjectURL(event.target.files[0]);
+                
+            };
+        </script>
+
+        <script>
+              $("#download").on("click", function () {
+                
+                // Temporarily disable edit mode visuals for capture
+                const wasEditMode = document.getElementById("edit-mode-toggle").checked;
+                if(wasEditMode) {
+                    toggleEditMode(false);
+                }
+
+                html2canvas(document.querySelector("#rect"), { 
+                    backgroundColor: null, 
+                    scale: 3 // Increase the scale for higher resolution
+                }).then(canvas => {
+                    canvas.toBlob(function (blob) {
+                        var h1content = document.getElementById("text-name").innerHTML;
+                        var newTitle = h1content.replace(/(<([^>]+)>)/ig, "");
+                        newTitle += ".png";
+                        window.saveAs(blob, newTitle);
+
+                        // Restore edit mode if it was on
+                        if(wasEditMode) {
+                            toggleEditMode(true);
+                            document.getElementById("edit-mode-toggle").checked = true;
+                        }
+                    });
+                });
+                });   
+        </script>
+
+
+        <script>
+            // Card Size Logic
+            const cardSizeSelect = document.getElementById("card-size");
+            const customOptions = document.getElementById("custom-size-options");
+            const rect = document.getElementById("rect");
+            const customWidth = document.getElementById("custom-width");
+            const customHeight = document.getElementById("custom-height");
+
+            function updateCardSize() {
+                const size = cardSizeSelect.value;
+                
+                // Reset styles
+                rect.style.minHeight = "unset";
+
+                if (size === "custom") {
+                    customOptions.style.display = "flex";
+                    rect.style.width = customWidth.value + "px";
+                    rect.style.height = customHeight.value + "px";
+                } else {
+                    customOptions.style.display = "none";
+                    
+                    if (size === "auto") {
+                        rect.style.width = "500px";
+                        rect.style.height = "fit-content";
+                    } else if (size === "square") {
+                        rect.style.width = "500px";
+                        rect.style.height = "500px";
+                    } else if (size === "portrait") {
+                        rect.style.width = "400px"; 
+                        rect.style.height = "711px"; // ~9:16 ratio
+                    } else if (size === "landscape") {
+                        rect.style.width = "600px";
+                        rect.style.height = "338px"; // ~16:9 ratio
+                    }
+                }
+            }
+
+            cardSizeSelect.addEventListener("change", updateCardSize);
+            customWidth.addEventListener("input", updateCardSize);
+            customHeight.addEventListener("input", updateCardSize);
+
+            // Border Radius Logic
+            document.getElementById("border").addEventListener("input", function () 
+            {
+                document.getElementById("rect").style.borderRadius = this.value +"px";
+            });
+
+            // Font Size Logic
+            document.getElementById("font-size-title").addEventListener("input", function() {
+                document.getElementById("text-name").style.fontSize = this.value + "px";
+            });
+
+            document.getElementById("font-size-author").addEventListener("input", function() {
+                document.getElementById("text-author").style.fontSize = this.value + "px";
+            });
+            
+            document.getElementById("font-size-lyrics").addEventListener("input", function() {
+                document.getElementById("text-lyric").style.fontSize = this.value + "px";
+            });
+
+            // Edit Mode Logic
+            const editModeToggle = document.getElementById("edit-mode-toggle");
+            let isEditMode = false;
+
+            editModeToggle.addEventListener("change", function() {
+                isEditMode = this.checked;
+                toggleEditMode(isEditMode);
+            });
+
+            function toggleEditMode(enable) {
+                // Separate elements for individual dragging
+                const elementsToDrag = ["#album-art-container", "#song-text-container", "#text-lyric", "#spotify-branding"];
+                const elementsToResize = ["#text-lyric", "#output"];
+                
+                if (enable) {
+                    // Enable Draggable without containment (allows dragging outside)
+                    $(elementsToDrag.join(", ")).draggable({
+                        scroll: false,
+                        cursor: "move"
+                        // removed containment: "#rect"
+                    });
+
+                    // Enable Resizable
+                    $("#text-lyric").resizable({
+                        handles: "e, w" // Only width resizing for text to force wrap
+                        // removed containment
+                    });
+
+                    $("#output").resizable({
+                        aspectRatio: true,
+                        handles: "n, e, s, w, se" 
+                    });
+
+                    // Visual cues
+                    $(elementsToDrag.join(", ")).css("outline", "1px dashed rgba(0,0,0,0.3)");
+                    
+                    // Disable content editing while dragging
+                    document.getElementById("text-name").contentEditable = "false";
+                    document.getElementById("text-author").contentEditable = "false";
+                    document.getElementById("text-lyric").contentEditable = "false";
+
+                    // Set position absolute for freer movement if not already
+                    // Note: Switching to absolute might jump elements. 
+                    // jQuery UI draggable uses relative positioning by default if position is static, 
+                    // but for "full freedom", absolute relative to the card is often better.
+                    // However, users might just want to offset from current position. 
+                    // Let's stick to default jQuery behavior which adds relative positioning, but since we removed containment, it should go anywhere.
+
+                } else {
+                    // Disable Draggable
+                    try {
+                        $(elementsToDrag.join(", ")).draggable("destroy");
+                    } catch(e) {}
+
+                    // Disable Resizable
+                    try {
+                        $("#text-lyric").resizable("destroy");
+                        $("#output").resizable("destroy");
+                    } catch(e) {}
+
+                    // Remove visual cues
+                    $(elementsToDrag.join(", ")).css("outline", "none");
+                    
+                     // Re-enable content editing
+                    document.getElementById("text-name").contentEditable = "true";
+                    document.getElementById("text-author").contentEditable = "true";
+                    document.getElementById("text-lyric").contentEditable = "true";
+                }
+            }
+
+            // Reset Layout Logic
+            document.getElementById("reset-layout").addEventListener("click", function() {
+                // Reset positions and sizes
+                
+                // Album Art Container (remove movement)
+                $("#album-art-container").css({top: "", left: "", position: ""}); 
+                
+                // Artist/Title Container
+                $("#song-text-container").css({top: "", left: "", position: ""});
+
+                // Lyrics (Reset position and width)
+                $("#text-lyric").css({top: "", left: "", width: "480px", height: "", position: "relative"});
+
+                // Spotify Branding (Reset to bottom-left)
+                $("#spotify-branding").css({top: "", left: "20px", bottom: "20px", right: "", position: "absolute"});
+
+                // Album Art Image Size (Reset to 80x80)
+                $("#output").css({width: "80px", height: "80px"});
+
+                // Font Sizes (Reset inputs and styles)
+                document.getElementById("font-size-title").value = 24;
+                document.getElementById("text-name").style.fontSize = "24px";
+                
+                document.getElementById("font-size-author").value = 15;
+                document.getElementById("text-author").style.fontSize = "15px";
+
+                document.getElementById("font-size-lyrics").value = 20;
+                document.getElementById("text-lyric").style.fontSize = "20px";
+
+                // If in draggable mode, we might need to refresh? No, CSS update is enough.
+                // However, jQuery UI draggable stores position in data. 
+                // Usually it updates on next drag.
+            });
+
+            // Hook into download to ensure edit mode is off (clears handles)
+            const originalDownloadBtn = document.getElementById("download");
+            // Clone and replace to hijack the listenener or just add a pre-listener? 
+            // Since jQuery is used for the click handler above on #download, we can add a mousedown listener to toggle off before click fires?
+            // Actually, the existing click handler is jQuery. Let's make sure we toggle OFF before that runs.
+            // But html2canvas runs async. 
+            // Best bet: Temporarily turn off edit mode inside the existing download handler.
+            // But I cannot easily edit the existing handler without replacing it. 
+            // I'll replace the download handler completely to be safe.
+        </script>
+        
+    <footer class="footer" style="position: static; background-color: transparent !important;">
+        <div class="text-center">
+            <a class="text-dark" href="https://github.com/asiiapiazza">Original by Asia Piazza</a>
+            <span class="text-dark"> | </span>
+            <a class="text-dark" href="#">Modified by Abdur Rafay</a>
+            <a class="text-dark" href="https://ko-fi.com/asiapiazza">| Support Original Author!</a>
+    
+        </div>
+    </footer>
+    <script>
+        var toggleBtn = document.getElementById('theme-toggle');
+        
+        function applyTheme(isDark) {
+            if(isDark){
+                document.body.classList.add('dark-mode');
+                toggleBtn.innerText = "☀️";
+                toggleBtn.style.background = "#333";
+                toggleBtn.style.color = "#fff";
+                toggleBtn.style.border = "1px solid #555";
+            } else {
+                document.body.classList.remove('dark-mode');
+                toggleBtn.innerText = "🌙";
+                toggleBtn.style.background = "#fff";
+                toggleBtn.style.color = "#000";
+                toggleBtn.style.border = "1px solid #ccc";
+            }
+        }
+
+        toggleBtn.addEventListener('click', function() {
+            var isDark = !document.body.classList.contains('dark-mode');
+            applyTheme(isDark);
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+
+        // Check preference on load
+        if(localStorage.getItem('theme') === 'dark'){
+            applyTheme(true);
+        }
+    </script>
+    </body>
+</html>
