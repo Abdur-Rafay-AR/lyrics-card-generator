@@ -182,3 +182,32 @@ body.dark-mode input[type="file"]::file-selector-button {
         height: 60vh;
     }
 }
+
+/* Accordion Dark Mode */
+body.dark-mode .accordion-item {
+    background-color: #2d2d2d;
+    border-color: #444;
+}
+
+body.dark-mode .accordion-button {
+    background-color: #333 !important;
+    color: #e0e0e0 !important;
+    border: none;
+    box-shadow: none;
+}
+
+body.dark-mode .accordion-button:not(.collapsed) {
+    background-color: #444 !important;
+    color: #fff !important;
+}
+
+body.dark-mode .accordion-button::after {
+    filter: invert(1);
+    opacity: 0.7;
+}
+
+body.dark-mode .accordion-body {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+}
+

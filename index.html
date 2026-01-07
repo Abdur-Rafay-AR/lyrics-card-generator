@@ -10,6 +10,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <!-- Bootstrap & Styles -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
@@ -29,118 +30,140 @@
              <button id="theme-toggle" class="btn btn-sm btn-outline-secondary rounded-circle">🌙</button>
         </div>
 
-        <!-- Section 1: Content Source -->
-        <div class="card mb-3 shadow-sm">
-            <div class="card-header bg-white fw-bold small text-uppercase text-secondary">Source</div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <label class="form-label small">Spotify URL</label>
-                    <div class="input-group">
-                        <input type="text" id="spotify-url" class="form-control form-control-sm" placeholder="Paste link & hit Fetch">
-                        <button id="fetch-spotify" class="btn btn-success btn-sm"><i class="fa-solid fa-cloud-arrow-down"></i></button>
+        <!-- Accordion Controls -->
+        <div class="accordion" id="sidebarAccordion">
+            
+            <!-- Section 1: Content Source -->
+            <div class="accordion-item shadow-sm mb-3 border rounded">
+                <h2 class="accordion-header" id="headingSource">
+                    <button class="accordion-button bg-white fw-bold small text-uppercase text-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSource" aria-expanded="true" aria-controls="collapseSource">
+                        Source
+                    </button>
+                </h2>
+                <div id="collapseSource" class="accordion-collapse collapse show" aria-labelledby="headingSource" data-bs-parent="#sidebarAccordion">
+                    <div class="accordion-body">
+                        <div class="mb-3">
+                            <label class="form-label small">Spotify URL</label>
+                            <div class="input-group">
+                                <input type="text" id="spotify-url" class="form-control form-control-sm" placeholder="Paste link & hit Fetch">
+                                <button id="fetch-spotify" class="btn btn-success btn-sm"><i class="fa-solid fa-cloud-arrow-down"></i></button>
+                            </div>
+                        </div>
+                        <div class="mb-0">
+                            <label class="form-label small">Or Upload Image</label>
+                            <input id="pick-file" type="file" accept="image/*" class="form-control form-control-sm">
+                        </div>
                     </div>
-                </div>
-                <div class="mb-0">
-                    <label class="form-label small">Or Upload Image</label>
-                    <input id="pick-file" type="file" accept="image/*" class="form-control form-control-sm">
                 </div>
             </div>
-        </div>
 
-        <!-- Section 2: Appearance -->
-        <div class="card mb-3 shadow-sm">
-            <div class="card-header bg-white fw-bold small text-uppercase text-secondary">Appearance</div>
-            <div class="card-body">
-                <div class="row g-2 align-items-center mb-2">
-                    <div class="col-8 small">Text Color</div>
-                    <div class="col-4 text-end">
-                         <input id="color-text" type="color" class="form-control form-control-color w-100" value="#ffe2a4" title="Choose text color">
-                    </div>
-                </div>
-                <div class="row g-2 align-items-center mb-2">
-                    <div class="col-8 small">Card Color</div>
-                    <div class="col-4 text-end">
-                         <input id="color-card" type="color" class="form-control form-control-color w-100" value="#70c661" title="Choose card color">
-                    </div>
-                </div>
-                
-                <div class="mb-2">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="gradient-toggle">
-                        <label class="form-check-label small" for="gradient-toggle">Enable Gradient</label>
-                    </div>
-                </div>
+            <!-- Section 2: Appearance -->
+            <div class="accordion-item shadow-sm mb-3 border rounded">
+                <h2 class="accordion-header" id="headingAppearance">
+                    <button class="accordion-button collapsed bg-white fw-bold small text-uppercase text-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAppearance" aria-expanded="false" aria-controls="collapseAppearance">
+                        Appearance
+                    </button>
+                </h2>
+                <div id="collapseAppearance" class="accordion-collapse collapse" aria-labelledby="headingAppearance" data-bs-parent="#sidebarAccordion">
+                    <div class="accordion-body">
+                        <div class="row g-2 align-items-center mb-2">
+                            <div class="col-8 small">Text Color</div>
+                            <div class="col-4 text-end">
+                                 <input id="color-text" type="color" class="form-control form-control-color w-100" value="#ffe2a4" title="Choose text color">
+                            </div>
+                        </div>
+                        <div class="row g-2 align-items-center mb-2">
+                            <div class="col-8 small">Card Color</div>
+                            <div class="col-4 text-end">
+                                 <input id="color-card" type="color" class="form-control form-control-color w-100" value="#70c661" title="Choose card color">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-2">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="gradient-toggle">
+                                <label class="form-check-label small" for="gradient-toggle">Enable Gradient</label>
+                            </div>
+                        </div>
 
-                <div id="gradient-options" style="display: none;" class="p-2 bg-light rounded mb-2 border">
-                     <div class="d-flex gap-2 mb-2">
-                         <input type="color" id="gradient-color1" class="form-control form-control-color" value="#ffe2a4">
-                         <input type="color" id="gradient-color2" class="form-control form-control-color" value="#FFFFFF">
-                     </div>
-                     <input type="range" id="gradient-angle" class="form-range" min="0" max="360" value="45">
-                     <div class="small text-muted text-center">Angle</div>
-                </div>
+                        <div id="gradient-options" style="display: none;" class="p-2 bg-light rounded mb-2 border">
+                             <div class="d-flex gap-2 mb-2">
+                                 <input type="color" id="gradient-color1" class="form-control form-control-color" value="#ffe2a4">
+                                 <input type="color" id="gradient-color2" class="form-control form-control-color" value="#FFFFFF">
+                             </div>
+                             <input type="range" id="gradient-angle" class="form-range" min="0" max="360" value="45">
+                             <div class="small text-muted text-center">Angle</div>
+                        </div>
 
-                <hr class="my-2">
-                
-                <div class="mb-2">
-                    <label class="form-label small mb-1">Corner Radius</label>
-                    <input type="range" class="form-range" value="20" min="0" max="50" step="1" id="border">
-                </div>
-                
-                <div class="mb-2">
-                    <label class="form-label small mb-1">Title Size</label>
-                    <input type="range" id="font-size-title" class="form-range" min="10" max="60" value="24">
-                </div>
-                
-                <div class="mb-2">
-                    <label class="form-label small mb-1">Author Size</label>
-                    <input type="range" id="font-size-author" class="form-range" min="10" max="40" value="15">
-                </div>
-                
-                <div class="mb-0">
-                    <label class="form-label small mb-1">Lyrics Size</label>
-                    <input type="range" id="font-size-lyrics" class="form-range" min="10" max="80" value="20">
+                        <hr class="my-2">
+                        
+                        <div class="mb-2">
+                            <label class="form-label small mb-1">Corner Radius</label>
+                            <input type="range" class="form-range" value="20" min="0" max="50" step="1" id="border">
+                        </div>
+                        
+                        <div class="mb-2">
+                            <label class="form-label small mb-1">Title Size</label>
+                            <input type="range" id="font-size-title" class="form-range" min="10" max="60" value="24">
+                        </div>
+                        
+                        <div class="mb-2">
+                            <label class="form-label small mb-1">Author Size</label>
+                            <input type="range" id="font-size-author" class="form-range" min="10" max="40" value="15">
+                        </div>
+                        
+                        <div class="mb-0">
+                            <label class="form-label small mb-1">Lyrics Size</label>
+                            <input type="range" id="font-size-lyrics" class="form-range" min="10" max="80" value="20">
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Section 3: Layout & Export -->
-        <div class="card mb-3 shadow-sm">
-            <div class="card-header bg-white fw-bold small text-uppercase text-secondary">Layout & Export</div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <label class="form-label small">Dimensions</label>
-                    <select id="card-size" class="form-select form-select-sm mb-2">
-                        <option value="auto">Auto (Fit Content)</option>
-                        <option value="square">Square (1:1)</option>
-                        <option value="portrait">Portrait (9:16)</option>
-                        <option value="landscape">Landscape (16:9)</option>
-                        <option value="custom">Custom</option>
-                    </select>
-                    <div id="custom-size-options" style="display: none;" class="input-group input-group-sm">
-                        <input type="number" id="custom-width" placeholder="W" value="500" class="form-control">
-                        <span class="input-group-text">x</span>
-                        <input type="number" id="custom-height" placeholder="H" value="500" class="form-control">
+            <!-- Section 3: Layout & Export -->
+            <div class="accordion-item shadow-sm mb-3 border rounded">
+                <h2 class="accordion-header" id="headingLayout">
+                    <button class="accordion-button collapsed bg-white fw-bold small text-uppercase text-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLayout" aria-expanded="false" aria-controls="collapseLayout">
+                        Layout & Export
+                    </button>
+                </h2>
+                <div id="collapseLayout" class="accordion-collapse collapse" aria-labelledby="headingLayout" data-bs-parent="#sidebarAccordion">
+                    <div class="accordion-body">
+                        <div class="mb-3">
+                            <label class="form-label small">Dimensions</label>
+                            <select id="card-size" class="form-select form-select-sm mb-2">
+                                <option value="auto">Auto (Fit Content)</option>
+                                <option value="square">Square (1:1)</option>
+                                <option value="portrait">Portrait (9:16)</option>
+                                <option value="landscape">Landscape (16:9)</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                            <div id="custom-size-options" style="display: none;" class="input-group input-group-sm">
+                                <input type="number" id="custom-width" placeholder="W" value="500" class="form-control">
+                                <span class="input-group-text">x</span>
+                                <input type="number" id="custom-height" placeholder="H" value="500" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small">Spotify Logo</span>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="logo-toggle">
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="small">Edit Mode (Drag)</span>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="edit-mode-toggle">
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                             <button id="reset-layout" class="btn btn-danger btn-sm">Reset Layout</button>
+                             <button id="download" class="btn btn-primary"><i class="fa-solid fa-download me-2"></i>Save Image</button>
+                        </div>
                     </div>
-                </div>
-
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="small">Spotify Logo</span>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="logo-toggle">
-                    </div>
-                </div>
-
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="small">Edit Mode (Drag)</span>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="edit-mode-toggle">
-                    </div>
-                </div>
-
-                <div class="d-grid gap-2">
-                     <button id="reset-layout" class="btn btn-danger btn-sm">Reset Layout</button>
-                     <button id="download" class="btn btn-primary"><i class="fa-solid fa-download me-2"></i>Save Image</button>
                 </div>
             </div>
         </div>
